@@ -3,7 +3,10 @@
 /* =========================================================
    Configuration
    ========================================================= */
-const API_URL = "https://mental-heath-score-in-ml.onrender.com";
+const API_URL = "https://mental-heath-score-in-ml.onrender.com/";
+
+// The backend's predicted_mental_health_score is on a 0–10 scale.
+const SCORE_MAX = 10;
 
 const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -68,7 +71,7 @@ $$("#mobileNav a").forEach((a) =>
   const numberEl = $("#heroScoreNumber");
   const RADIUS = 68;
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-  const SAMPLE_SCORE = 78;
+  const SAMPLE_SCORE = 7.8; // out of 10 — decorative sample only
 
   ring.style.strokeDasharray = String(CIRCUMFERENCE);
   ring.style.strokeDashoffset = String(CIRCUMFERENCE);
@@ -76,10 +79,10 @@ $$("#mobileNav a").forEach((a) =>
   // Animate in shortly after page load
   window.requestAnimationFrame(() => {
     setTimeout(() => {
-      const offset = CIRCUMFERENCE * (1 - SAMPLE_SCORE / 100);
+      const offset = CIRCUMFERENCE * (1 - SAMPLE_SCORE / SCORE_MAX);
       ring.style.strokeDashoffset = String(offset);
       animateValue(0, SAMPLE_SCORE, 1200, (v) => {
-        numberEl.textContent = Math.round(v);
+        numberEl.textContent = v.toFixed(1);
       });
     }, 400);
   });
@@ -214,24 +217,30 @@ function validateForm(payload) {
 
 /* =========================================================
    Score interpretation
+   Score scale: 0–10 (matches SCORE_MAX)
+     0.0–3.9   Needs Attention
+     4.0–5.9   Fair
+     6.0–7.4   Good
+     7.5–8.9   Very Good
+     9.0–10.0  Excellent
    ========================================================= */
 function interpretScore(score) {
-  if (score >= 90) return "Excellent";
-  if (score >= 75) return "Very Good";
-  if (score >= 60) return "Good";
-  if (score >= 40) return "Fair";
+  if (score >= 9) return "Excellent";
+  if (score >= 7.5) return "Very Good";
+  if (score >= 6) return "Good";
+  if (score >= 4) return "Fair";
   return "Needs Attention";
 }
 
 function insightForScore(score) {
-  if (score >= 75) {
+  if (score >= 7.5) {
     return {
       emoji: "✨",
       title: "Positive Balance",
       text: "Your current lifestyle pattern shows a strong overall wellness balance. Keep maintaining healthy sleep, activity and study habits.",
     };
   }
-  if (score >= 40) {
+  if (score >= 4) {
     return {
       emoji: "🌱",
       title: "Room to Improve",
@@ -286,7 +295,7 @@ async function submitAssessment(payload) {
 
   let response;
   try {
-    response = await fetch(`${API_URL}/predict`, {  
+    response = await fetch(`${API_URL}/predict`, { 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -361,7 +370,7 @@ function showResult(rawScore, payload) {
   resultCard.hidden = false;
   resultCard.scrollIntoView({ behavior: REDUCED_MOTION ? "auto" : "smooth", block: "start" });
 
-  const clampedScore = clamp(rawScore, 0, 100);
+  const clampedScore = clamp(rawScore, 0, SCORE_MAX);
   const category = interpretScore(clampedScore);
   const insight = insightForScore(clampedScore);
 
@@ -385,7 +394,7 @@ function showResult(rawScore, payload) {
   ring.style.stroke = ringColorMap[category] || "var(--accent)";
 
   requestAnimationFrame(() => {
-    const offset = RESULT_CIRCUMFERENCE * (1 - clampedScore / 100);
+    const offset = RESULT_CIRCUMFERENCE * (1 - clampedScore / SCORE_MAX);
     ring.style.strokeDashoffset = String(offset);
     animateValue(0, rawScore, 1500, (v) => {
       numberEl.textContent = v.toFixed(2);
