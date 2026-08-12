@@ -3,7 +3,7 @@
 /* =========================================================
    Configuration
    ========================================================= */
-const API_URL = "http://127.0.0.1:8000/predict";
+const API_URL = "https://mental-heath-score-in-ml.onrender.com";
 
 const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
