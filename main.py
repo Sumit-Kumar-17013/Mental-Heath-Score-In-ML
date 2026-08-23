@@ -51,12 +51,12 @@ def Home():
         "EndPoint" : "Send Post Request to Predict Your Mental Health Stree Prediction"
     }
 
-@app.get('/health')
-def Health():
-    return{
-        "Status" : "Running",
-        "Model" : "Random Forest Regressor"
-        
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "uptime": time.time() - START_TIME
     }
 
 @app.post('/predict' , response_model=PredictionRecord)
