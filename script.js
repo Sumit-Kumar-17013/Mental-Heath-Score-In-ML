@@ -3,7 +3,7 @@
 /* =========================================================
    Configuration
    ========================================================= */
-const API_URL = "https://mental-heath-score-in-ml-1.onrender.com";
+const API_URL = "https://mental-heath-score-wosn.onrender.com";
 
 // The backend's predicted_mental_health_score is on a 0–10 scale.
 const SCORE_MAX = 10;
