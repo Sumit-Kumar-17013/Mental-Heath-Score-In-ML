@@ -4,6 +4,8 @@ from pydantic import BaseModel , Field
 from typing import Literal
 from fastapi.middleware.cors import CORSMiddleware
 import joblib
+from datetime import datetime, timezone
+import time
 
 model = joblib.load("Mental_Health.pkl")
 
@@ -49,12 +51,12 @@ def Home():
         "EndPoint" : "Send Post Request to Predict Your Mental Health Stree Prediction"
     }
 
-@app.get('/health')
-def Health():
-    return{
-        "Status" : "Running",
-        "Model" : "Random Forest Regressor"
-        
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "uptime": time.time() - START_TIME
     }
 
 @app.post('/predict' , response_model=PredictionRecord)
